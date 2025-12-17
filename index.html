@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Julebord Quiz</title>
+    <style>
+        :root {
+            --color-primary: #d32f2f;
+            --color-secondary: #1b5e20;
+            --color-background: #0a0e27;
+            --color-surface: #1a1f3a;
+            --color-text: #ffffff;
+            --color-text-secondary: #b0b0b0;
+            --color-correct: #4caf50;
+            --color-wrong: #f44336;
+            --color-timer-warning: #ff9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('BGjul.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--color-primary);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--color-surface);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 2px solid var(--color-primary);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .modal h2 {
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-text-secondary);
+            border-radius: 8px;
+            background: var(--color-background);
+            color: var(--color-text);
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-text);
+        }
+
+        .btn-primary:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: #0d3817;
+            transform: translateY(-2px);
+        }
+
+        .btn-disabled {
+            background: var(--color-text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-disabled:hover {
+            background: var(--color-text-secondary);
+            transform: none;
+        }
+
+        .rules-text {
+            margin-top: 10px;
+            font-size: 0.8em;
+            line-height: 1.4;
+            color: var(--color-text-secondary);
+            text-align: left;
+        }
+
+        .rules-text strong {
+            color: var(--color-text);
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: var(--color-surface);
+            border-radius: 10px;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .quiz-progress {
+            font-size: 0.9em;
+            color: var(--color-text-secondary);
+        }
+
+        .score-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--color-primary);
+            transition: color 0.3s;
+        }
+
+        .timer.warning {
+            color: var(--color-timer-warning);
+        }
+
+        .timer.critical {
+            color: var(--color-wrong);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .timer-bar {
+            height: 4px;
+            background: var(--color-text-secondary);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-timer-warning), var(--color-wrong));
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+
+        .question-card {
+            background: var(--color-surface);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--color-primary);
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--color-text);
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .answer-btn {
+            padding: 20px;
+            border: 2px solid var(--color-text-secondary);
+            border-radius: 10px;
+            background: var(--color-background);
+            color: var(--color-text);
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .answer-btn:hover:not(.disabled) {
+            border-color: var(--color-primary);
+            background: rgba(211, 47, 47, 0.1);
+            transform: translateX(5px);
+        }
+
+        .answer-btn.selected {
+            border-color: var(--color-primary);
+            background: rgba(211, 47, 47, 0.2);
+        }
+
+        .answer-btn.correct {
+            border-color: var(--color-correct);
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--color-correct);
+        }
+
+        .answer-btn.wrong {
+            border-color: var(--color-wrong);
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--color-wrong);
+        }
+
+        .answer-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .leaderboard-container {
+            display: none;
+        }
+
+        .leaderboard-container.active {
+            display: block;
+        }
+
+        .leaderboard {
+            background: var(--color-surface);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--color-primary);
+        }
+
+        .leaderboard h2 {
+            color: var(--color-primary);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .leaderboard-table thead {
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .leaderboard-table th {
+            padding: 12px;
+            text-align: left;
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .leaderboard-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid var(--color-text-secondary);
+            color: var(--color-text);
+        }
+
+        .leaderboard-table tr:hover {
+            background: rgba(211, 47, 47, 0.1);
+        }
+
+        .leaderboard-table tr:first-child td {
+            background: rgba(211, 47, 47, 0.15);
+            font-weight: 600;
+        }
+
+        .medal {
+            font-size: 1.5em;
+            margin-right: 8px;
+        }
+
+        .restart-btn {
+            margin-top: 30px;
+            width: 100%;
+            padding: 15px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .question-card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.2em;
+            }
+
+            .answer-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="overlay" id="loginOverlay">
+        <div class="modal">
+            <h2>Julebord Quiz</h2>
+            <form id="loginForm" onsubmit="startQuiz(event)">
+                <div class="form-group">
+                    <label for="username">NICKNAME</label>
+                    <input type="text" id="username" required placeholder="Skriv ditt navn">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Start Quiz!</button>
+                </div>
+                <div class="rules-text">
+                    <strong>Regler:</strong><br>
+                    17 SPØRSMÅL MED 4 ALTERNATIVER HVOR 1 ER RIKTIG, 10 SEKUNDER PER SPØRSMÅL!<br>
+                    +200 poeng per RIKTIG, -50 poeng per FEIL<br>
+                    +30 poeng/sekund til overs
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1>JULEBORD QUIZ</h1>
+
+        <!-- Quiz Section -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="timer-bar">
+                <div class="timer-bar-fill" id="timerBarFill"></div>
+            </div>
+            <div class="quiz-header">
+                <div class="quiz-progress">
+                    Spørsmål <span id="currentQuestion">1</span> av <span id="totalQuestions">10</span>
+                </div>
+                <div class="score-display">
+                    Poeng: <span id="scoreDisplay">0</span>
+                </div>
+                <div class="timer" id="timerDisplay">10</div>
+            </div>
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="answers-grid" id="answersGrid"></div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-container" id="leaderboardContainer">
+            <div class="leaderboard">
+                <h2>Sluttresultat</h2>
+                <div class="final-score" id="finalScoreDisplay"></div>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Plassering</th>
+                            <th>Navn</th>
+                            <th>Poeng</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody"></tbody>
+                </table>
+                <button class="btn-primary restart-btn" onclick="location.reload()">Spill på nytt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Data - REDIGER DISSE SPØRSMÅLENE
+        const quizData = [
+            {
+                question: "Hvilket lag vant Premier League sesongen ved utgangen av 2024?",
+                answers: ["City", "Liverpool", "Arsenal", "United"],
+                correct: 0
+            },
+            {
+                question: "Hva er det engelske ordet for 'Juletrær'?",
+                answers: ["Christmas Tree", "Christmas Snow", "Holiday Plant", "Winter Tree"],
+                correct: 0
+            },
+            {
+                question: "Hva heter den klassiske norske julematen som lages av torsk?",
+                answers: ["Fårikål", "Rakfisk", "Lutefisk", "Clipfisk"],
+                correct: 2
+            },
+            {
+                question: "Hvilket land ligger Norge i?",
+                answers: ["Skandinavia", "Norge ligger ikke i noe land", "Europa", "Norge"],
+                correct: 3
+            },
+            {
+                question: "Hva betyr 'Reindeer' på norsk?",
+                answers: ["Hjort", "Reinsdyr", "Villdyr", "Nordlending"],
+                correct: 1
+            },
+            {
+                question: "Hvor mange fylker hadde Norge før 2020-omleggingen?",
+                answers: ["16", "18", "19", "20"],
+                correct: 2
+            },
+            {
+                question: "Hvilket land vant VM i fotball 2022?",
+                answers: ["Frankrike", "Argentina", "Spania", "Brasil"],
+                correct: 1
+            },
+            {
+                question: "Hvor mange sekunder er ett minutt?",
+                answers: ["50", "60", "90", "100"],
+                correct: 1
+            },
+            {
+                question: "Oversett 'Merry Christmas' til norsk",
+                answers: ["Morsom jul", "Glede i julen", "God jul", "Gledfull jul"],
+                correct: 2
+            },
+            {
+                question: "Hvor mange ganger har Odd Grenland blitt norsk fotballmester?",
+                answers: ["0", "1", "2", "3"],
+                correct: 0
+            },
+            {
+                question: "Hvor mange fingre har ett normalt menneske på begge hendene tilsammen?",
+                answers: ["8 fingre", "9 fingre", "10 fingre", "12 fingre"],
+                correct: 2
+            },
+            {
+                question: "Hvilket år ble Norge uavhengig fra Sverige?",
+                answers: ["1814", "1884", "1905", "1945"],
+                correct: 2
+            },
+            {
+                question: "Hvor skal julebukken tradisjonelt være gjemt?",
+                answers: ["I kjelleren", "I stallen", "I skapet", "Under sengen"],
+                correct: 1
+            },
+            {
+                question: "Hvor mange måneder er 1/4 år?",
+                answers: ["4", "6", "3", "12"],
+                correct: 2
+            },
+            {
+                question: "Hvor mange medlemmer har Stortinget?",
+                answers: ["100 medlemmer", "150 medlemmer", "169 medlemmer", "200 medlemmer"],
+                correct: 2
+            },
+			{
+                question: "Hva er Norges hovedstad?",
+                answers: ["Etne", "Mosjøen", "Kongsberg", "Moelv"],
+                correct: [0, 1, 2, 3]
+            },
+			{
+                question: "Tradisjonell Norsk Juledrikk",
+                answers: ["Gløgg", "Juleøl", "Julebrus", "Aquevit"],
+                correct: [0, 1, 2, 3]
+            },
+            
+        ];
+
+        let currentQuestionIndex = 0;
+        let scores = {};
+        let currentUsername = '';
+        let timeLeft = 10;
+        let timerInterval = null;
+        let isAnswered = false;
+        let startTime = 0;
+
+        // Start Quiz
+        function startQuiz(event) {
+            event.preventDefault();
+            currentUsername = document.getElementById('username').value.trim();
+            if (!currentUsername) {
+                alert('Vennligst skriv inn brukernavn');
+                return;
+            }
+            scores[currentUsername] = 0;
+            updateScoreDisplay();
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('quizContainer').classList.add('active');
+            document.getElementById('totalQuestions').textContent = quizData.length;
+            loadQuestion();
+        }
+
+        // Load Question
+        function loadQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                showLeaderboard();
+                return;
+            }
+
+            isAnswered = false;
+            timeLeft = 10;
+            startTime = Date.now();
+
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+
+            const answersGrid = document.getElementById('answersGrid');
+            answersGrid.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer;
+                btn.onclick = () => selectAnswer(index);
+                answersGrid.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        // Timer
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').textContent = timeLeft;
+                document.getElementById('timerBarFill').style.width = (timeLeft / 10) * 100 + '%';
+
+                const timerDisplay = document.getElementById('timerDisplay');
+                timerDisplay.classList.remove('warning', 'critical');
+
+                if (timeLeft <= 3) {
+                    timerDisplay.classList.add('critical');
+                } else if (timeLeft <= 5) {
+                    timerDisplay.classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (!isAnswered) {
+                        nextQuestion();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Select Answer
+        function selectAnswer(index) {
+            if (isAnswered) return;
+
+            isAnswered = true;
+            clearInterval(timerInterval);
+
+            const question = quizData[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach((btn) => {
+                btn.classList.add('disabled');
+            });
+
+            // Beregn bonuspoeng basert på tid igjen
+            const elapsed = (Date.now() - startTime) / 1000;
+            const timeBonus = Math.max(0, Math.floor((10 - elapsed) * 30));
+
+            // Sjekk om svaret er riktig
+            const isCorrect = Array.isArray(question.correct)
+                ? question.correct.includes(index)
+                : index === question.correct;
+
+            if (isCorrect) {
+                // +200 for riktig svar + bonuspoeng
+                scores[currentUsername] += 200 + timeBonus;
+                buttons[index].classList.add('correct');
+            } else {
+                // -50 for feil svar
+                scores[currentUsername] -= 50;
+                buttons[index].classList.add('wrong');
+
+                if (!Array.isArray(question.correct)) {
+                    buttons[question.correct].classList.add('correct');
+                }
+            }
+
+            updateScoreDisplay();
+            setTimeout(nextQuestion, 2000);
+        }
+
+        // Oppdater poengvisning
+        function updateScoreDisplay() {
+            document.getElementById('scoreDisplay').textContent = scores[currentUsername];
+        }
+
+        // Next Question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        // Show Leaderboard med lagring i localStorage
+        function showLeaderboard() {
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('leaderboardContainer').classList.add('active');
+
+            let stored = JSON.parse(localStorage.getItem('julequizLeaderboard')) || [];
+
+            const existingIndex = stored.findIndex(e => e.name === currentUsername);
+            if (existingIndex >= 0) {
+                stored[existingIndex].score = Math.max(stored[existingIndex].score, scores[currentUsername]);
+            } else {
+                stored.push({
+                    name: currentUsername,
+                    score: scores[currentUsername]
+                });
+            }
+
+            stored.sort((a, b) => b.score - a.score);
+            localStorage.setItem('julequizLeaderboard', JSON.stringify(stored));
+
+            const leaderboard = stored;
+            document.getElementById('finalScoreDisplay').textContent = scores[currentUsername] + ' poeng';
+
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            leaderboardBody.innerHTML = '';
+
+            const medals = ['🥇', '🥈', '🥉'];
+            leaderboard.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                const medal = medals[index] || ' ';
+                row.innerHTML = `
+                    <td><span class="medal">${medal}</span>${index + 1}</td>
+                    <td>${entry.name}</td>
+                    <td><strong>${entry.score}</strong></td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
