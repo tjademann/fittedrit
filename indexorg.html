@@ -308,33 +308,11 @@
         }
 
         .leaderboard {
-    background: linear-gradient(
-        135deg,
-        rgba(26, 31, 58, 0.85),
-        rgba(40, 60, 110, 0.9)
-    );
-    padding: 32px 30px 30px 30px;
-    border-radius: 12px;
-    border: 2px solid var(--color-primary);
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
-    position: relative;
-    overflow: hidden;
-}
-
-.leaderboard::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -10%;
-    width: 120%;
-    height: 4px;
-    background: linear-gradient(90deg, #d32f2f, #1b5e20, #d32f2f);
-    opacity: 0.9;
-}
-
-
-
-
+            background: var(--color-surface);
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid var(--color-primary);
+        }
 
         .leaderboard h2 {
             color: var(--color-primary);
@@ -427,7 +405,7 @@
     <!-- Login Modal -->
     <div class="overlay" id="loginOverlay">
         <div class="modal">
-            <h2>GUTTA'S Julebord Quiz</h2>
+            <h2>Julebord Quiz</h2>
             <form id="loginForm" onsubmit="startQuiz(event)">
                 <div class="form-group">
                     <label for="username">NICKNAME</label>
@@ -437,23 +415,18 @@
                     <button type="submit" class="btn-primary">Start Quiz!</button>
                 </div>
                 <div class="rules-text">
-    <strong>Regler:</strong><br>
-    18 SPØRSMÅL MED 4 ALTERNATIVER (HVOR 1 ER RIKTIG), 12 SEKUNDER PER SPØRSMÅL!<br>
-    200 poeng per RIKTIG, -50 poeng per FEIL<br>
-    30 poeng/sekund til overs
-</div>
-
-<button type="button" class="btn-secondary" onclick="openLeaderboardFromStart()">
-    Se resultatliste
-</button>
-
+                    <strong>Regler:</strong><br>
+                    17 SPØRSMÅL MED 4 ALTERNATIVER HVOR 1 ER RIKTIG, 10 SEKUNDER PER SPØRSMÅL!<br>
+                    +200 poeng per RIKTIG, -50 poeng per FEIL<br>
+                    +30 poeng/sekund til overs
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Main Container -->
     <div class="container">
-        <h1>GUTTA'S JULEBORD QUIZ</h1>
+        <h1>JULEBORD QUIZ</h1>
 
         <!-- Quiz Section -->
         <div class="quiz-container" id="quizContainer">
@@ -462,7 +435,7 @@
             </div>
             <div class="quiz-header">
                 <div class="quiz-progress">
-                    Spørsmål <span id="currentQuestion">1</span> av <span id="totalQuestions">18</span>
+                    Spørsmål <span id="currentQuestion">1</span> av <span id="totalQuestions">10</span>
                 </div>
                 <div class="score-display">
                     Poeng: <span id="scoreDisplay">0</span>
@@ -485,8 +458,6 @@
                         <tr>
                             <th>Plassering</th>
                             <th>Navn</th>
-                            <th>Riktige</th>
-                            <th>Feil</th>
                             <th>Poeng</th>
                         </tr>
                     </thead>
@@ -500,35 +471,101 @@
     <script>
         // Quiz Data - REDIGER DISSE SPØRSMÅLENE
         const quizData = [
-            { question: "Hvilket lag vant Premier League sesongen ved utgangen av 2024?", answers: ["City", "Liverpool", "Arsenal", "United"], correct: 0 },
-            { question: "Hva er det engelske ordet for Juletrær?", answers: ["Christmas Tree", "Christmas Snow", "Holiday Plant", "Winter Tree"], correct: 0 },
-            { question: "Hva heter den klassiske norske julematen som lages av torsk?", answers: ["Fårikål", "Rakfisk", "Lutefisk", "Clipfisk"], correct: 2 },
-            { question: "Hvilket land ligger Norge i?", answers: ["Skandinavia", "Norge ligger ikke i noe land", "Europa", "Norge"], correct: 3 },
-            { question: "Hva betyr 'Reindeer' på norsk?", answers: ["Hjort", "Reinsdyr", "Villdyr", "Nordlending"], correct: 1 },
-            { question: "Hvor mange fylker hadde Norge før 2020-omleggingen?", answers: ["16", "18", "19", "20"], correct: 2 },
-            { question: "Hvilket land vant VM i fotball 2022?", answers: ["Frankrike", "Argentina", "Spania", "Brasil"], correct: 1 },
-            { question: "Hvor mange sekunder er ett minutt?", answers: ["50", "60", "90", "100"], correct: 1 },
-            { question: "Oversett 'Merry Christmas' til norsk", answers: ["Morsom jul", "Glede i julen", "God jul", "Gledfull jul"], correct: 2 },
-            { question: "Hvor mange ganger har Odd Grenland blitt norsk fotballmester?", answers: ["0", "1", "2", "3"], correct: 0 },
-            { question: "Hvor mange tær har ett normalt menneske på begge hendene tilsammen?", answers: ["8", "10", "Ingen", "12"], correct: 2 },
-            { question: "Hvilket år ble Norge uavhengig fra Sverige?", answers: ["1814", "1884", "1905", "1945"], correct: 2 },
-            { question: "Hvor skal julebukken tradisjonelt være gjemt?", answers: ["I kjelleren", "I stallen", "I skapet", "Under sengen"], correct: 1 },
-            { question: "Hvor mange måneder er 1/4 år?", answers: ["4", "6", "3", "12"], correct: 2 },
-            { question: "Hvor mange medlemmer har Stortinget?", answers: ["100 medlemmer", "150 medlemmer", "169 medlemmer", "200 medlemmer"], correct: 2 },
-            { question: "Hva er Norges hovedstad?", answers: ["Etne", "Mosjøen", "Kongsberg"], correct: [0, 1, 2] },
-            { question: "Tradisjonell Norsk Juledrikk", answers: ["Gløgg", "Juleøl", "Julebrus", "Akevitt"], correct: [0, 1, 2, 3] },
-			{ question: "Hva er 'pi'?", answers: ["3,1415", "3,141", "3,14159", "3,141592"], correct: [0, 1, 2, 3] }
+            {
+                question: "Hvilket lag vant Premier League sesongen ved utgangen av 2024?",
+                answers: ["City", "Liverpool", "Arsenal", "United"],
+                correct: 0
+            },
+            {
+                question: "Hva er det engelske ordet for 'Juletrær'?",
+                answers: ["Christmas Tree", "Christmas Snow", "Holiday Plant", "Winter Tree"],
+                correct: 0
+            },
+            {
+                question: "Hva heter den klassiske norske julematen som lages av torsk?",
+                answers: ["Fårikål", "Rakfisk", "Lutefisk", "Clipfisk"],
+                correct: 2
+            },
+            {
+                question: "Hvilket land ligger Norge i?",
+                answers: ["Skandinavia", "Norge ligger ikke i noe land", "Europa", "Norge"],
+                correct: 3
+            },
+            {
+                question: "Hva betyr 'Reindeer' på norsk?",
+                answers: ["Hjort", "Reinsdyr", "Villdyr", "Nordlending"],
+                correct: 1
+            },
+            {
+                question: "Hvor mange fylker hadde Norge før 2020-omleggingen?",
+                answers: ["16", "18", "19", "20"],
+                correct: 2
+            },
+            {
+                question: "Hvilket land vant VM i fotball 2022?",
+                answers: ["Frankrike", "Argentina", "Spania", "Brasil"],
+                correct: 1
+            },
+            {
+                question: "Hvor mange sekunder er ett minutt?",
+                answers: ["50", "60", "90", "100"],
+                correct: 1
+            },
+            {
+                question: "Oversett 'Merry Christmas' til norsk",
+                answers: ["Morsom jul", "Glede i julen", "God jul", "Gledfull jul"],
+                correct: 2
+            },
+            {
+                question: "Hvor mange ganger har Odd Grenland blitt norsk fotballmester?",
+                answers: ["0", "1", "2", "3"],
+                correct: 0
+            },
+            {
+                question: "Hvor mange fingre har ett normalt menneske på begge hendene tilsammen?",
+                answers: ["8 fingre", "9 fingre", "10 fingre", "12 fingre"],
+                correct: 2
+            },
+            {
+                question: "Hvilket år ble Norge uavhengig fra Sverige?",
+                answers: ["1814", "1884", "1905", "1945"],
+                correct: 2
+            },
+            {
+                question: "Hvor skal julebukken tradisjonelt være gjemt?",
+                answers: ["I kjelleren", "I stallen", "I skapet", "Under sengen"],
+                correct: 1
+            },
+            {
+                question: "Hvor mange måneder er 1/4 år?",
+                answers: ["4", "6", "3", "12"],
+                correct: 2
+            },
+            {
+                question: "Hvor mange medlemmer har Stortinget?",
+                answers: ["100 medlemmer", "150 medlemmer", "169 medlemmer", "200 medlemmer"],
+                correct: 2
+            },
+			{
+                question: "Hva er Norges hovedstad?",
+                answers: ["Etne", "Mosjøen", "Kongsberg"],
+                correct: [0, 1, 2]
+            },
+			{
+                question: "Tradisjonell Norsk Juledrikk",
+                answers: ["Gløgg", "Juleøl", "Julebrus", "Aquevit"],
+                correct: [0, 1, 2, 3]
+            },
+            
         ];
 
         let currentQuestionIndex = 0;
         let scores = {};
         let currentUsername = '';
-        let timeLeft = 12;
+        let timeLeft = 10;
         let timerInterval = null;
         let isAnswered = false;
         let startTime = 0;
-        let correctAnswers = 0;
-        let wrongAnswers = 0;
 
         // Start Quiz
         function startQuiz(event) {
@@ -538,14 +575,7 @@
                 alert('Vennligst skriv inn brukernavn');
                 return;
             }
-            
-            // Initialiser spillerdata med tellere
-            scores[currentUsername] = {
-                score: 0,
-                correctAnswers: 0,
-                wrongAnswers: 0
-            };
-            
+            scores[currentUsername] = 0;
             updateScoreDisplay();
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('quizContainer').classList.add('active');
@@ -561,7 +591,7 @@
             }
 
             isAnswered = false;
-            timeLeft = 12;
+            timeLeft = 10;
             startTime = Date.now();
 
             const question = quizData[currentQuestionIndex];
@@ -601,7 +631,9 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    if (!isAnswered) nextQuestion();
+                    if (!isAnswered) {
+                        nextQuestion();
+                    }
                 }
             }, 1000);
         }
@@ -615,27 +647,28 @@
 
             const question = quizData[currentQuestionIndex];
             const buttons = document.querySelectorAll('.answer-btn');
-            buttons.forEach(btn => btn.classList.add('disabled'));
+            buttons.forEach((btn) => {
+                btn.classList.add('disabled');
+            });
 
             // Beregn bonuspoeng basert på tid igjen
             const elapsed = (Date.now() - startTime) / 1000;
-            const timeBonus = Math.max(0, Math.floor(12 - elapsed) * 30);
+            const timeBonus = Math.max(0, Math.floor((10 - elapsed) * 30));
 
             // Sjekk om svaret er riktig
-            const isCorrect = Array.isArray(question.correct) 
-                ? question.correct.includes(index) 
+            const isCorrect = Array.isArray(question.correct)
+                ? question.correct.includes(index)
                 : index === question.correct;
 
             if (isCorrect) {
-                // 200 for riktig svar + bonuspoeng
-                scores[currentUsername].score += 200 + timeBonus;
-                scores[currentUsername].correctAnswers++;
+                // +200 for riktig svar + bonuspoeng
+                scores[currentUsername] += 200 + timeBonus;
                 buttons[index].classList.add('correct');
             } else {
                 // -50 for feil svar
-                scores[currentUsername].score -= 50;
-                scores[currentUsername].wrongAnswers++;
+                scores[currentUsername] -= 50;
                 buttons[index].classList.add('wrong');
+
                 if (!Array.isArray(question.correct)) {
                     buttons[question.correct].classList.add('correct');
                 }
@@ -647,7 +680,7 @@
 
         // Oppdater poengvisning
         function updateScoreDisplay() {
-            document.getElementById('scoreDisplay').textContent = scores[currentUsername].score;
+            document.getElementById('scoreDisplay').textContent = scores[currentUsername];
         }
 
         // Next Question
@@ -663,27 +696,21 @@
 
             let stored = JSON.parse(localStorage.getItem('julequizLeaderboard')) || [];
 
-            // Oppdater eller legg til spiller
             const existingIndex = stored.findIndex(e => e.name === currentUsername);
             if (existingIndex >= 0) {
-                stored[existingIndex] = {
-                    ...scores[currentUsername],
-                    name: currentUsername
-                };
+                stored[existingIndex].score = Math.max(stored[existingIndex].score, scores[currentUsername]);
             } else {
                 stored.push({
-                    ...scores[currentUsername],
-                    name: currentUsername
+                    name: currentUsername,
+                    score: scores[currentUsername]
                 });
             }
 
-            // Sorter etter poeng (høyest først)
             stored.sort((a, b) => b.score - a.score);
-            
             localStorage.setItem('julequizLeaderboard', JSON.stringify(stored));
 
             const leaderboard = stored;
-            document.getElementById('finalScoreDisplay').textContent = scores[currentUsername].score + ' poeng';
+            document.getElementById('finalScoreDisplay').textContent = scores[currentUsername] + ' poeng';
 
             const leaderboardBody = document.getElementById('leaderboardBody');
             leaderboardBody.innerHTML = '';
@@ -691,49 +718,15 @@
             const medals = ['🥇', '🥈', '🥉'];
             leaderboard.forEach((entry, index) => {
                 const row = document.createElement('tr');
-                const medal = medals[index];
+                const medal = medals[index] || ' ';
                 row.innerHTML = `
-                    <td>${medal || (index + 1)}<span class="medal">${medal}</span></td>
+                    <td><span class="medal">${medal}</span>${index + 1}</td>
                     <td>${entry.name}</td>
-                    <td>${entry.correctAnswers}</td>
-                    <td>${entry.wrongAnswers}</td>
                     <td><strong>${entry.score}</strong></td>
                 `;
                 leaderboardBody.appendChild(row);
             });
         }
-		    function openLeaderboardFromStart() {
-    // Skjul login-overlay og quiz, vis leaderboard-container
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('quizContainer').classList.remove('active');
-    document.getElementById('leaderboardContainer').classList.add('active');
-
-    const leaderboardBody = document.getElementById('leaderboardBody');
-    const finalScoreDisplay = document.getElementById('finalScoreDisplay');
-
-    // Ingen aktiv spiller her, så vis bare tekst
-    finalScoreDisplay.textContent = 'Resultatliste';
-
-    let stored = JSON.parse(localStorage.getItem('julequizLeaderboard')) || [];
-    stored.sort((a, b) => b.score - a.score);
-
-    leaderboardBody.innerHTML = '';
-
-    const medals = ['🥇', '🥈', '🥉'];
-    stored.forEach((entry, index) => {
-        const medal = medals[index] || '';
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${medal || (index + 1)}</td>
-            <td>${entry.name}</td>
-            <td>${entry.correctAnswers ?? '-'}</td>
-            <td>${entry.wrongAnswers ?? '-'}</td>
-            <td><strong>${entry.score}</strong></td>
-        `;
-        leaderboardBody.appendChild(row);
-    });
-}
-
     </script>
 </body>
 </html>
