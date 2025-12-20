@@ -467,7 +467,7 @@
                 <div class="score-display">
                     Poeng: <span id="scoreDisplay">0</span>
                 </div>
-                <div class="timer" id="timerDisplay">10</div>
+                <div class="timer" id="timerDisplay">15</div>
             </div>
             <div class="question-card">
                 <div class="question-text" id="questionText"></div>
@@ -523,7 +523,7 @@
         let currentQuestionIndex = 0;
         let scores = {};
         let currentUsername = '';
-        let timeLeft = 12;
+        let timeLeft = 15;
         let timerInterval = null;
         let isAnswered = false;
         let startTime = 0;
@@ -561,7 +561,7 @@
             }
 
             isAnswered = false;
-            timeLeft = 12;
+            timeLeft = 15;
             startTime = Date.now();
 
             const question = quizData[currentQuestionIndex];
@@ -619,7 +619,7 @@
 
             // Beregn bonuspoeng basert på tid igjen
             const elapsed = (Date.now() - startTime) / 1000;
-            const timeBonus = Math.max(0, Math.floor(12 - elapsed) * 30);
+            const timeBonus = Math.max(0, Math.floor(15 - elapsed) * 30);
 
             // Sjekk om svaret er riktig
             const isCorrect = Array.isArray(question.correct) 
